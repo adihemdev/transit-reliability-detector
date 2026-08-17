@@ -54,3 +54,73 @@ Processing      Processing
        /          \
       v            v
  Rider View    Admin View
+```
+
+Realtime processing prioritizes fresh trip and arrival information.
+
+Analytics processing maintains historical observations used to understand route and stop reliability over time.
+
+## Technology
+
+- Java
+- Spring Boot
+- Apache Kafka
+- PostgreSQL
+- TimescaleDB
+- GTFS / GTFS-Realtime
+
+## Project Goals
+
+This project is designed to explore practical distributed-system concerns including:
+
+- Event-driven processing
+- Kafka ordering and partitioning
+- Consumer scaling
+- High-throughput event ingestion
+- Idempotent processing
+- Retry and failure recovery
+- Backpressure
+- Time-series data modeling
+- Database performance
+- Realtime vs eventually consistent workloads
+- Fault tolerance under load
+
+## Running Locally
+
+Local setup and run instructions will be added with the first working vertical slice.
+
+The initial runnable flow will be:
+
+```text
+MTA Trip Update
+      |
+      v
+Normalize
+      |
+      v
+Kafka
+      |
+      v
+Realtime Processor
+      |
+      v
+Calculate Delay / Arrival Change
+      |
+      v
+PostgreSQL / TimescaleDB
+      |
+      v
+REST API
+```
+
+## Documentation
+
+Detailed architecture and engineering tradeoffs are documented separately:
+
+- [`DESIGN_DECISIONS.md`](DESIGN_DECISIONS.md) - Kafka design, persistence choices, consistency, fault tolerance, scalability, and architectural tradeoffs
+
+## Status
+
+Initial architecture and domain design are complete.
+
+Implementation begins with the realtime trip-update vertical slice.
