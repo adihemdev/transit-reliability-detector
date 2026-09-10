@@ -1,6 +1,7 @@
 package com.transit.reliability.service;
 
 import com.transit.reliability.config.KafkaConfig;
+import com.transit.reliability.config.KafkaTopicProperties;
 import com.transit.reliability.model.TripUpdateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +18,12 @@ public class TripUpdateProducer {
 
     private final KafkaTemplate<String, TripUpdateEvent> kafkaTemplate;
 
-    public TripUpdateProducer(KafkaTemplate<String, TripUpdateEvent> kafkaTemplate) {
+    private final KafkaTopicProperties topics;
+
+    public TripUpdateProducer(KafkaTemplate<String, TripUpdateEvent> kafkaTemplate,
+                              KafkaTopicProperties topics) {
         this.kafkaTemplate = kafkaTemplate;
+        this.topics = topics;
     }
 
     public CompletableFuture<SendResult<String, TripUpdateEvent>> sendTripUpdateEvent(TripUpdateEvent event) {
@@ -29,7 +34,7 @@ public class TripUpdateProducer {
                 event.getTripId(), event.getRouteId(), event.getEventTimestamp());
         
         CompletableFuture<SendResult<String, TripUpdateEvent>> future = 
-                kafkaTemplate.send(KafkaConfig.TRIP_UPDATE_TOPIC, event.getTripId(), event);
+                kafkaTemplate.send(topics.tripUpdate(), event.getTripId(), event);
 
         future.whenComplete((result, ex) -> {
             if (ex != null) {

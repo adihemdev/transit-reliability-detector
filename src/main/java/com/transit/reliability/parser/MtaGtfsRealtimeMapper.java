@@ -6,6 +6,7 @@ import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
 import com.transit.reliability.model.StopTimingUpdate;
 import com.transit.reliability.model.TransportMode;
 import com.transit.reliability.model.TripUpdateEvent;
+import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 /**
  * Maps a parsed MTA GTFS-Realtime TripUpdate into our normalized internal TripUpdateEvent.
  */
+@Component
 public class MtaGtfsRealtimeMapper {
 
     /**

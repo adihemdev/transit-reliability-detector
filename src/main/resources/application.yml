@@ -1,3 +1,10 @@
+app:
+  kafka:
+    topics:
+      trip-timing: trip-timing
+      trip-update: trip-update
+      trip-update-dlt: trip-update.DLT
+      service-alert: service-alert
 spring:
   application:
     name: transit-reliability-detector
@@ -25,6 +32,11 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      compression-type: lz4
+      batch-size: 65536
+
+      properties:
+        linger.ms: 5
     consumer:
       group-id: transit-reliability-group
       auto-offset-reset: earliest
@@ -32,6 +44,29 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "com.transit.reliability.model"
+
+
+
+aws:
+  region: us-east-2
+  lambda:
+    service-alert-function-name: mta-service-alert-processor
+mta:
+  realtime:
+    feed-url: "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-ace"
+    api-key: ""
+    polling-interval: "60s"
+    enabled: true
+  service-alert:
+    feed-url: "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-servicealerts"
+    api-key: ""
+    enabled: false
+    polling-interval: "60s"
+  alerts:
+    feed-url: "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts.json"
+    api-key: ""
+    polling-interval: "60s"
+    enabled: true
 
 server:
   port: 8080

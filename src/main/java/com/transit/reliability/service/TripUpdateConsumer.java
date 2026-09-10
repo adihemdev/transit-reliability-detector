@@ -30,7 +30,7 @@ public class TripUpdateConsumer {
         this.tripStateRepository = tripStateRepository;
     }
 
-    @KafkaListener(topics = KafkaConfig.TRIP_UPDATE_TOPIC, groupId = "${spring.kafka.consumer.group-id:transit-reliability-group}")
+    @KafkaListener(topics = "${app.kafka.topics.trip-update}",  groupId = "${spring.kafka.consumer.group-id:transit-reliability-group}")
     @Transactional
     public void consumeTripUpdateEvent(TripUpdateEvent event) {
         if (event == null || event.getTripId() == null) {
@@ -39,10 +39,10 @@ public class TripUpdateConsumer {
         }
 
         log.info("Received TripUpdateEvent from Kafka: tripId={}, routeId={}, stopUpdatesCount={}, timestamp={}",
-                event.getTripId(), event.getRouteId(), 
-                event.getStopUpdates() != null ? event.getStopUpdates().size() : 0, 
+                event.getTripId(), event.getRouteId(),
+                event.getStopUpdates() != null ? event.getStopUpdates().size() : 0,
                 event.getEventTimestamp());
-        
+
         // Track the event for integration test assertions
         receivedEvents.add(event);
 
@@ -50,7 +50,8 @@ public class TripUpdateConsumer {
         Optional<TripState> existingStateOpt = tripStateRepository.findById(event.getTripId());
         if (existingStateOpt.isPresent()) {
             TripState existingState = existingStateOpt.get();
-            if (event.getEventTimestamp().isBefore(existingState.getLastUpdated())) {
+            if (!event.getEventTimestamp()
+                    .isAfter(existingState.getLastUpdated())) {
                 log.warn("Out-of-order event ignored for trip current-state: tripId={}. Event timestamp {} is older than existing state timestamp {}.",
                         event.getTripId(), event.getEventTimestamp(), existingState.getLastUpdated());
                 return;
@@ -91,8 +92,8 @@ public class TripUpdateConsumer {
         // Add new predictions and save/flush again
         state.getStopPredictions().addAll(newPredictions);
         tripStateRepository.saveAndFlush(state);
-        
-        log.info("Successfully updated current-state and predictions for tripId={} with timestamp {}", 
+
+        log.info("Successfully updated current-state and predictions for tripId={} with timestamp {}",
                 event.getTripId(), event.getEventTimestamp());
     }
 

@@ -28,7 +28,7 @@ public class TripTimingConsumer {
         this.tripUpdateRepository = tripUpdateRepository;
     }
 
-    @KafkaListener(topics = KafkaConfig.TRIP_TIMING_TOPIC, groupId = "${spring.kafka.consumer.group-id:transit-reliability-group}")
+    @KafkaListener(topics = "${app.kafka.topics.trip-timing}", groupId = "${spring.kafka.consumer.group-id:transit-reliability-group}")
     @Transactional
     public void consumeTripTimingEvent(TripTimingEvent event) {
         log.info("Received TripTimingEvent from Kafka: tripId={}, routeId={}, status={}, timestamp={}",
@@ -52,7 +52,8 @@ public class TripTimingConsumer {
         Optional<TripState> existingStateOpt = tripStateRepository.findById(event.getTripId());
         if (existingStateOpt.isPresent()) {
             TripState existingState = existingStateOpt.get();
-            if (event.getEventTimestamp().isBefore(existingState.getLastUpdated())) {
+            if (!event.getEventTimestamp()
+                    .isAfter(existingState.getLastUpdated())) {
                 log.warn("Out-of-order event ignored for trip current-state: tripId={}. Event timestamp {} is older than existing state timestamp {}.",
                         event.getTripId(), event.getEventTimestamp(), existingState.getLastUpdated());
             } else {

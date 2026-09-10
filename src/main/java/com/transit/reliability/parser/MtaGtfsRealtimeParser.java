@@ -1,16 +1,18 @@
 package com.transit.reliability.parser;
-
 import com.google.transit.realtime.GtfsRealtime.FeedMessage;
 import com.google.transit.realtime.GtfsRealtime.FeedEntity;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate;
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
-@Slf4j
+@Component
 public class MtaGtfsRealtimeParser {
+
+    private static final Logger log = LoggerFactory.getLogger(MtaGtfsRealtimeParser.class);
 
     /**
      * Parses the GTFS-Realtime protobuf feed from an InputStream and returns the first TripUpdate.
@@ -44,5 +46,19 @@ public class MtaGtfsRealtimeParser {
             }
         }
         return Optional.empty();
+    }
+
+    /**
+     * Parses the GTFS-Realtime protobuf feed from an InputStream and returns the parsed FeedMessage.
+     *
+     * @param inputStream the stream containing the GTFS-Realtime protobuf data
+     * @return the parsed FeedMessage
+     * @throws IOException if parsing fails
+     */
+    public FeedMessage parseFeedMessage(InputStream inputStream) throws IOException {
+        if (inputStream == null) {
+            throw new IllegalArgumentException("InputStream cannot be null");
+        }
+        return FeedMessage.parseFrom(inputStream);
     }
 }

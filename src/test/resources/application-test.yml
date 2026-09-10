@@ -19,3 +19,10 @@ spring:
     consumer:
       group-id: test-group
       auto-offset-reset: earliest
+
+mta:
+  realtime:
+    feed-url: "http://localhost:8080/dummy-mta-feed"
+    api-key: ""
+    polling-interval: "30s"
+    enabled: false
